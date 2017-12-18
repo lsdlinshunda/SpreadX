@@ -5,6 +5,9 @@
 		.points{
 			fill:steelblue;
 		}
+        .newpoints{
+            fill: red;
+        }
 		polyline, .ray{
 			fill:none;
 			stroke-width:3;
@@ -14,6 +17,9 @@
 		.sweepline{
 			stroke:blue;
 		}
+        .lines{
+            stroke:red;
+        }
 	</style>
 </head>
 <body>
@@ -23,32 +29,55 @@
 
 var width=900, height=500,points, bnd=[], ang=[];
 
-function getRandomPoints(n){
+function getRandomPoints(low, high){
 	var mX=50, mY=50;//margin;
-	return d3.range(0,n).map(function(d){ 
+	return d3.range(low, high).map(function(d){ 
 		return {i:d, x:mX+Math.round(Math.random()*(width-2*mX)), y:mY+Math.round(Math.random()*(height-2*mY))};
 		});
 }
 
 function initialize(){	
-	points=getRandomPoints(30);
+	points=getRandomPoints(0, 15);
 	console.log(points);
-	
+    
+    d3.select("svg").remove(); //删除前一次的svg
 	d3.select("body").append("svg").attr("width",width).attr("height",height);
-	d3.select("svg").append("line").attr("class","sweepline");
-	d3.select("svg").append("line").attr("class","ray");
+    // d3.select("svg").append("line").attr("class","sweepline");
+    // d3.select("svg").append("polyline");
+	// d3.select("svg").append("line").attr("class","ray");
 	
 	d3.select("svg").selectAll(".points").data(points).enter().append("circle").attr("class","points")
 		.attr("cx",function(d){ return d.x}).attr("cy",function(d){ return d.y})
-		.attr("r",6);
+		.attr("r", 5);
 		
 	// getBoundary();
 }
 
+function nextStep() {
+    let current_nums = points.length;  //当前节点数
+    let append_nums = Math.ceil(Math.min(Math.random() * current_nums * 0.2, 10000));  //随机添加的节点数
+    console.log(append_nums)
+    let new_points = getRandomPoints(current_nums, current_nums+append_nums) 
+    points = points.concat(new_points)    //添加节点
+    console.log(points)
+    //画点
+    d3.select("svg").selectAll(".points").style("fill", "steelblue").data(points).enter().append("circle").attr("class","points")
+		.attr("cx",function(d){ return d.x}).attr("cy",function(d){ return d.y})
+        .attr("r",5)
+        .style("fill","red");
+    //画线
+    d3.select("svg").selectAll("line").style("stroke", "steelblue");
+    new_points.forEach(function(d) {
+        let source = Math.floor(Math.random() * current_nums);
+        d3.select("svg").append("line").style("stroke", "yellow")
+        .attr("x1", points[source].x).attr("y1", points[source].y)
+        .attr("x2", d.x).attr("y2", d.y);
+    });
+}
+
 //initialize();
 </script>
-
-    <button onclick="initialize()">下一轮</button></br>
-
+    <button onclick="initialize()">初始化</button>
+    <button onclick="nextStep()">下一轮</button></br>
 </body>
 </html>
