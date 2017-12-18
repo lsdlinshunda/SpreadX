@@ -17,9 +17,6 @@
 		.sweepline{
 			stroke:blue;
 		}
-        .lines{
-            stroke:red;
-        }
 	</style>
 </head>
 <body>
@@ -27,8 +24,7 @@
 
 <script>
 
-var width=900, height=500,points, bnd=[], ang=[];
-
+var width=1800, height=1000,points;
 function getRandomPoints(low, high){
 	var mX=50, mY=50;//margin;
 	return d3.range(low, high).map(function(d){ 
@@ -48,9 +44,10 @@ function initialize(){
 	
 	d3.select("svg").selectAll(".points").data(points).enter().append("circle").attr("class","points")
 		.attr("cx",function(d){ return d.x}).attr("cy",function(d){ return d.y})
-		.attr("r", 5);
-		
-	// getBoundary();
+		.style("r", 6);
+        
+    document.getElementById("next_btn").removeAttribute("disabled");
+    // getBoundary();
 }
 
 function nextStep() {
@@ -62,22 +59,37 @@ function nextStep() {
     console.log(points)
     //画点
     d3.select("svg").selectAll(".points").style("fill", "steelblue").data(points).enter().append("circle").attr("class","points")
-		.attr("cx",function(d){ return d.x}).attr("cy",function(d){ return d.y})
-        .attr("r",5)
-        .style("fill","red");
+        .attr("cx",function(d){ return d.x}).attr("cy",function(d){ return d.y})
+        .style("fill","red")
+        .transition().transition(200)
+        .styleTween("r", function() {
+            return d3.interpolateNumber(0, 6);
+        }).delay(450);
     //画线
-    d3.select("svg").selectAll("line").style("stroke", "steelblue");
+    // d3.select("svg").selectAll("line").style("stroke", "steelblue");
+    d3.select("svg").selectAll("line").remove();
     new_points.forEach(function(d) {
         let source = Math.floor(Math.random() * current_nums);
         d3.select("svg").append("line").style("stroke", "yellow")
         .attr("x1", points[source].x).attr("y1", points[source].y)
-        .attr("x2", d.x).attr("y2", d.y);
+        .attr("x2", d.x).attr("y2", d.y)
+        .style("stroke-dasharray", "2000, 2000")
+        .transition().duration(1000)
+        .styleTween("stroke-dashoffset", function() {
+           return d3.interpolateNumber(2000, 0);
+       });
     });
+
+    console.log(document.getElementById("auto").checked);
+    if (document.getElementById("auto").checked) {
+        if (points.length < 10000) setTimeout(function(){nextStep()}, 1000);
+    }
 }
 
 //initialize();
 </script>
     <button onclick="initialize()">初始化</button>
-    <button onclick="nextStep()">下一轮</button></br>
+    <button id="next_btn" onclick="nextStep()">下一轮</button>
+    <input type="checkbox" id="auto">自动</input></br>
 </body>
 </html>
