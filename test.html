@@ -1,0 +1,54 @@
+<html>
+<head>
+	<title>Page Title</title>
+	<style>
+		.points{
+			fill:steelblue;
+		}
+		polyline, .ray{
+			fill:none;
+			stroke-width:3;
+			stroke:red;
+			stroke-opacity:0.5;
+		}
+		.sweepline{
+			stroke:blue;
+		}
+	</style>
+</head>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+
+<script>
+
+var width=900, height=500,points, bnd=[], ang=[];
+
+function getRandomPoints(n){
+	var mX=50, mY=50;//margin;
+	return d3.range(0,n).map(function(d){ 
+		return {i:d, x:mX+Math.round(Math.random()*(width-2*mX)), y:mY+Math.round(Math.random()*(height-2*mY))};
+		});
+}
+
+function initialize(){	
+	points=getRandomPoints(30);
+	console.log(points);
+	
+	d3.select("body").append("svg").attr("width",width).attr("height",height);
+	d3.select("svg").append("line").attr("class","sweepline");
+	d3.select("svg").append("line").attr("class","ray");
+	
+	d3.select("svg").selectAll(".points").data(points).enter().append("circle").attr("class","points")
+		.attr("cx",function(d){ return d.x}).attr("cy",function(d){ return d.y})
+		.attr("r",6);
+		
+	// getBoundary();
+}
+
+//initialize();
+</script>
+
+    <button onclick="initialize()">下一轮</button></br>
+
+</body>
+</html>
