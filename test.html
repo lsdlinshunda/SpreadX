@@ -5,26 +5,69 @@
 		.points{
 			fill:steelblue;
 		}
-        .newpoints{
-            fill: red;
-        }
-		polyline, .ray{
-			fill:none;
-			stroke-width:3;
-			stroke:red;
-			stroke-opacity:0.5;
-		}
-		.sweepline{
-			stroke:blue;
-		}
-	</style>
+    </style>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="echarts.min.js"></script>
 </head>
 <body>
-<script src="http://d3js.org/d3.v3.min.js"></script>
-
+    <button onclick="initialize()">初始化</button>
+    <button id="next_btn" onclick="nextStep()">下一轮</button>
+    <input type="checkbox" id="auto">自动</input></br>
+    <div id="main" style="width: 900px;height:500px;"></div>
 <script>
 
-var width=1800, height=1000,points;
+var width=900, height=500, points, counts=[];
+
+// 折线图
+// 基于准备好的dom，初始化echarts实例
+var myChart = echarts.init(document.getElementById('main'));
+
+var option = {
+    title: {
+        text: '结点数量变化'
+    },
+    tooltip: {
+        trigger: 'axis',
+        formatter: function (params) {
+            params = params[0];
+            return params.value[0]+' : ' + params.value[1];
+        },
+        axisPointer: {
+            animation: false
+        }
+    },
+    xAxis: {
+        type: 'value',
+        splitLine: {
+            show: false
+        }
+    },
+    yAxis: {
+        type: 'value',
+        boundaryGap: [0, '100%'],
+        splitLine: {
+            show: false
+        }
+    },
+    series: [{
+        name: '模拟数据',
+        type: 'line',
+        showSymbol: false,
+        hoverAnimation: false,
+        data: counts
+    }]
+};
+
+//添加新一轮的结点数量
+function appendPointsCount(num) {
+    counts.push([counts.length, num]);
+    myChart.setOption({
+        series: [{
+            data: counts
+        }]
+    });
+}
+
 function getRandomPoints(low, high){
 	var mX=50, mY=50;//margin;
 	return d3.range(low, high).map(function(d){ 
@@ -32,15 +75,15 @@ function getRandomPoints(low, high){
 		});
 }
 
-function initialize(){	
+function initialize(){
+    counts = []; //清空
+    myChart.setOption(option);
 	points=getRandomPoints(0, 15);
-	console.log(points);
+    console.log(points);
+    appendPointsCount(points.length);  
     
     d3.select("svg").remove(); //删除前一次的svg
 	d3.select("body").append("svg").attr("width",width).attr("height",height);
-    // d3.select("svg").append("line").attr("class","sweepline");
-    // d3.select("svg").append("polyline");
-	// d3.select("svg").append("line").attr("class","ray");
 	
 	d3.select("svg").selectAll(".points").data(points).enter().append("circle").attr("class","points")
 		.attr("cx",function(d){ return d.x}).attr("cy",function(d){ return d.y})
@@ -51,11 +94,11 @@ function initialize(){
 }
 
 function nextStep() {
-    let current_nums = points.length;  //当前节点数
+    let current_nums = points.length;  //当前结点数
     let append_nums = Math.ceil(Math.min(Math.random() * current_nums * 0.2, 10000));  //随机添加的节点数
     console.log(append_nums)
     let new_points = getRandomPoints(current_nums, current_nums+append_nums) 
-    points = points.concat(new_points)    //添加节点
+    points = points.concat(new_points)    //添加结点
     console.log(points)
     //画点
     d3.select("svg").selectAll(".points").style("fill", "steelblue").data(points).enter().append("circle").attr("class","points")
@@ -80,16 +123,18 @@ function nextStep() {
        });
     });
 
+    //更新折线图
+    appendPointsCount(points.length);   
+
+    //自动运行
     console.log(document.getElementById("auto").checked);
-    if (document.getElementById("auto").checked) {
+    if (document.getElementById("auto").checked) {    
         if (points.length < 10000) setTimeout(function(){nextStep()}, 1000);
     }
 }
 
 //initialize();
 </script>
-    <button onclick="initialize()">初始化</button>
-    <button id="next_btn" onclick="nextStep()">下一轮</button>
-    <input type="checkbox" id="auto">自动</input></br>
+
 </body>
 </html>
