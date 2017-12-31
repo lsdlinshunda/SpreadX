@@ -11,7 +11,7 @@
 </head>
 <body>
     <button onclick="initialize()">初始化</button>
-    <button id="next_btn" onclick="nextStep()">下一轮</button>
+    <button id="next_btn" onclick="nextStep()" disabled>下一轮</button>
     <input type="checkbox" id="auto">自动</input></br>
     <div id="main" style="width: 900px;height:500px;"></div>
 <script>
@@ -44,7 +44,7 @@ var option = {
     },
     yAxis: {
         type: 'value',
-        boundaryGap: [0, '100%'],
+        boundaryGap: [0, '20%'],
         splitLine: {
             show: false
         }
@@ -90,7 +90,6 @@ function initialize(){
 		.style("r", 6);
         
     document.getElementById("next_btn").removeAttribute("disabled");
-    // getBoundary();
 }
 
 function nextStep() {
@@ -128,8 +127,16 @@ function nextStep() {
 
     //自动运行
     console.log(document.getElementById("auto").checked);
-    if (document.getElementById("auto").checked) {    
-        if (points.length < 10000) setTimeout(function(){nextStep()}, 1000);
+    if (points.length < 10000) {     //最大结点数
+        if (document.getElementById("auto").checked) {    
+            setTimeout(function(){nextStep()}, 1000);
+        }
+    } else {
+        document.getElementById("next_btn").setAttribute("disabled", "true");
+        setTimeout(function() {
+            d3.select("svg").selectAll("line").remove();
+            d3.select("svg").selectAll(".points").style("fill", "steelblue");
+        }, 1000);
     }
 }
 
