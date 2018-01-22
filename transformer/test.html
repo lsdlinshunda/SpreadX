@@ -44,7 +44,7 @@ d3.json("output.json", function(error, graph) {
     .data(graph.nodes)
     .enter().append("circle")
       .attr("r", 5)
-      .attr("fill", function(d) { return color(d.group); })
+      .attr("fill", function(d) { return color(d.year); })
       .call(d3.drag()
           .on("start", dragstarted)
           .on("drag", dragged)
@@ -55,7 +55,7 @@ d3.json("output.json", function(error, graph) {
   link.attr("transform","scale(0.4)")  
   
   node.append("title")
-      .text(function(d) { return d.id; });
+      .text(function(d) { return d.id + "(" + d.year + ")"; });
 
   simulation
       .nodes(graph.nodes)
