@@ -1,0 +1,176 @@
+<html>
+<head>
+	<title>Page Title</title>
+	<style>
+		.points{
+			fill:steelblue;
+		}
+    </style>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="echarts.min.js"></script>
+</head>
+<body>
+    <button onclick="initialize()">初始化</button>
+    <button id="next_btn" onclick="nextStep()" disabled>下一轮</button>
+    <input type="checkbox" id="auto">自动</input></br>
+    <div id="main" style="width: 900px;height:500px;"></div>
+<script>
+
+var width=900, height=500, points, counts=[], center=[width/2, height/2];
+
+// 折线图
+// 基于准备好的dom，初始化echarts实例
+var myChart = echarts.init(document.getElementById('main'));
+
+var option = {
+    title: {
+        text: '结点数量变化'
+    },
+    tooltip: {
+        trigger: 'axis',
+        formatter: function (params) {
+            params = params[0];
+            return params.value[0]+' : ' + params.value[1];
+        },
+        axisPointer: {
+            animation: false
+        }
+    },
+    xAxis: {
+        type: 'value',
+        splitLine: {
+            show: false
+        }
+    },
+    yAxis: {
+        type: 'value',
+        boundaryGap: [0, '20%'],
+        splitLine: {
+            show: false
+        }
+    },
+    series: [{
+        name: '模拟数据',
+        type: 'line',
+        showSymbol: false,
+        hoverAnimation: false,
+        data: counts
+    }]
+};
+
+//添加新一轮的结点数量
+function appendPointsCount(num) {
+    counts.push([counts.length, num]);
+    myChart.setOption({
+        series: [{
+            data: counts
+        }]
+    });
+}
+
+function getRandomPoints(low, high){
+	var mX=50, mY=50;//margin;
+	return d3.range(low, high).map(function(d){ 
+		return {i:d, x:mX+Math.round(Math.random()*(width-2*mX)), y:mY+Math.round(Math.random()*(height-2*mY))};
+		});
+}
+
+function transition() {
+  start = [center[0], center[1], 60];
+  end = [center[0] + 100, center[1], 60];
+  var  i = d3.interpolateZoom(start, end);
+  
+  d3.select("svg").attr("transform", transform(start))
+    .transition()
+    .delay(250)
+    .duration(i.duration * 2)
+    .attrTween("transform", function () {
+
+        return function (t) {
+            var data1 = i(t);
+            var data2 = transform(data1);
+            return data2;
+        };
+    });
+
+    center = [end[0], end[1]];
+}
+
+function transform(p) {
+    //console.log(center);
+    //console.log(p);
+    console.log("translate(" + (width/2 - p[0]) + "," + (height/2 - p[1]) + ")scale(0.5)");
+    return "translate(" + (width/2 - p[0]) + "," + (height/2 - p[1]) + ")scale(0.5)";
+}
+
+function initialize(){
+    counts = []; //清空
+    myChart.setOption(option);
+	points=getRandomPoints(0, 15);
+    console.log(points);
+    appendPointsCount(points.length);  
+    
+    d3.select("svg").remove(); //删除前一次的svg
+	d3.select("body").append("svg").attr("width",width).attr("height",height);
+	
+	d3.select("svg").selectAll(".points").data(points).enter().append("circle").attr("class","points")
+		.attr("cx",function(d){ return d.x}).attr("cy",function(d){ return d.y})
+		.style("r", 6);
+        
+    document.getElementById("next_btn").removeAttribute("disabled");
+}
+
+function nextStep() {
+    transition();
+    let current_nums = points.length;  //当前结点数
+    let append_nums = Math.ceil(Math.min(Math.random() * current_nums * 0.2, 10000));  //随机添加的节点数
+    console.log(append_nums)
+    let new_points = getRandomPoints(current_nums, current_nums+append_nums) 
+    points = points.concat(new_points)    //添加结点
+    console.log(points)
+    //画点
+    d3.select("svg").selectAll(".points").style("fill", "steelblue").data(points).enter().append("circle").attr("class","points")
+        .attr("cx",function(d){ return d.x}).attr("cy",function(d){ return d.y})
+        .style("fill","red")
+        .transition().transition(200)
+        .styleTween("r", function() {
+            return d3.interpolateNumber(0, 6);
+        }).delay(450);
+    //画线
+    // d3.select("svg").selectAll("line").style("stroke", "steelblue");
+    d3.select("svg").selectAll("line").remove();
+    new_points.forEach(function(d) {
+        let source = Math.floor(Math.random() * current_nums);
+        d3.select("svg").append("line").style("stroke", "yellow")
+        .attr("x1", points[source].x).attr("y1", points[source].y)
+        .attr("x2", d.x).attr("y2", d.y)
+        .style("stroke-dasharray", "2000, 2000")
+        .transition().duration(1000)
+        .styleTween("stroke-dashoffset", function() {
+           return d3.interpolateNumber(2000, 0);
+       });
+    });
+
+    //更新折线图
+    appendPointsCount(points.length);   
+
+    //自动运行
+    console.log(document.getElementById("auto").checked);
+    if (points.length < 10000) {     //最大结点数
+        if (document.getElementById("auto").checked) {    
+            setTimeout(function(){nextStep()}, 1000);
+        }
+    } else {
+        document.getElementById("next_btn").setAttribute("disabled", "true");
+        setTimeout(function() {
+            d3.select("svg").selectAll("line").remove();
+            d3.select("svg").selectAll(".points").style("fill", "steelblue");
+        }, 1000);
+    }
+}
+
+//initialize();
+</script>
+
+</body>
+</html>
