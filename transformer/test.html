@@ -50,6 +50,10 @@ d3.json("output.json", function(error, graph) {
           .on("drag", dragged)
           .on("end", dragended));
 
+  // 缩放
+  node.attr("transform","scale(0.4)")
+  link.attr("transform","scale(0.4)")  
+  
   node.append("title")
       .text(function(d) { return d.id; });
 
@@ -88,6 +92,13 @@ function dragended(d) {
   if (!d3.event.active) simulation.alphaTarget(0);
   d.fx = null;
   d.fy = null;
+}
+
+function zoomed() {
+    svg.attr("transform",
+        "translate(" + zoom.translate() + ")" +
+        "scale(" + zoom.scale() + ")"
+    );
 }
 
 </script>
