@@ -36,7 +36,7 @@ rl_year.on('close', () => {
         result.nodes.push({"id": arr[0], "year": year[arr[0]]})
         for(var i=1; i<arr.length; ++i) {
             if (arr[i] != "")
-                result.links.push({"source": arr[i], "target": arr[0], "value": 1})
+                result.links.push({"source": arr[i], "target": arr[0], "value": 1, "year": year[arr[0]]})
         }
     })
 
@@ -45,7 +45,3 @@ rl_year.on('close', () => {
         fs.writeFile("output.json", JSON.stringify(result))
     })
 })
-
-
-
-
