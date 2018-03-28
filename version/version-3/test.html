@@ -16,9 +16,13 @@
 <span>年份：</span>
 <input id="year"></input>
 <button onclick="filterByYear()">筛选</button>
+<button onclick="startSpread()">开始传播</button>
+<br>
 <svg width="960" height="600"></svg>
-<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="d3.v4.min.js"></script>
 <script>
+
+var seed_node = []
 
 var svg = d3.select("svg"),
     width = +svg.attr("width"),
@@ -47,7 +51,16 @@ d3.json("output.json", function(error, graph) {
         .data(graph.nodes)
         .enter().append("circle")
         .attr("r", 5)
-        .attr("fill", function(d) { return color(d.year); })
+        .attr("fill", "steelblue")
+        // .attr("fill", function(d) { return color(d.year); })
+        .on("click", function(d) {
+            chosen = d3.select(this)
+            if (chosen.attr("fill") != "red") {
+                chosen.attr("fill", "red")
+            } else { 
+                chosen.attr("fill", "steelblue")
+            }
+        })
         .call(d3.drag()
             .on("start", dragstarted)
             .on("drag", dragged)
@@ -136,6 +149,36 @@ function filterByYear() {
         else 
             return false
     }).style("display", "block")
+}
+
+function startSpread() {
+    //TODO: 直接根据属性选择 
+    var seed = d3.selectAll("circle").filter(function(d) {
+        return d3.select(this).attr("fill") == "red"
+    })
+    //不存在种子
+    if (seed.empty()) {
+        console.log("spread finish")
+        return
+    }
+    seed.each(function(d){
+        // console.log(d.id)
+        //随机选择相邻边
+        var new_seed = d3.selectAll("line").filter(function(l) {
+            // console.log(.source.id)
+            // return false
+            return l.source.id == d.id && Math.random() < 0.5
+        })
+        //生成新种子
+        new_seed.each(function(l) {
+            d3.selectAll("circle").filter(function(c) {
+                return (c.id == l.target.id && d3.select(this).attr("fill") == "steelblue")
+            }).attr("fill", "red")
+        })
+        d3.select(this).attr("fill", "orange")
+    })
+    //新一轮传播
+    setTimeout(startSpread, 1000)
 }
 
 </script>
