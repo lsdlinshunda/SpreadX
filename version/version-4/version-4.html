@@ -36,7 +36,7 @@ var svg = d3.select("svg"),
 //     .force("charge", d3.forceManyBody())
 //     .force("center", d3.forceCenter(width / 2, height / 2));
 
-d3.json("output.json", function(error, graph) {
+d3.json("01.json", function(error, graph) {
     if (error) throw error;
 
     var hash = []; 
@@ -47,6 +47,7 @@ d3.json("output.json", function(error, graph) {
     for (var i = 0; i < graph.edges.length; ++i) {
         graph.edges[i]["source"] = hash[graph.edges[i]["source"]];
         graph.edges[i]["target"] = hash[graph.edges[i]["target"]];
+        graph.edges[i]["year"] = Math.max(graph.edges[i]["source"].attributes.year, graph.edges[i]["target"].attributes.year)
     }
 
     console.log(graph.edges);
@@ -56,11 +57,11 @@ d3.json("output.json", function(error, graph) {
         .selectAll("line")
         .data(graph.edges)
         .enter().append("line")
-        .attr("stroke-width", function(d) { return Math.sqrt(d.value); })
-        .attr("x1", function(d) { return center.x + d.x1 * 0.2; })
-        .attr("y1", function(d) { return center.y + d.y1 * 0.2; })
-        .attr("x2", function(d) { return center.x + d.x2 * 0.2; })
-        .attr("y2", function(d) { return center.y + d.y2 * 0.2; });
+        .attr("stroke-width", function(d) { return Math.sqrt(d.size); })
+        .attr("x1", function(d) { return center.x + d.source.x * 0.2; })
+        .attr("y1", function(d) { return center.y + d.source.y * 0.2; })
+        .attr("x2", function(d) { return center.x + d.target.x * 0.2; })
+        .attr("y2", function(d) { return center.y + d.target.y * 0.2; });
 
     var node = svg.append("g")
         .attr("class", "nodes")
@@ -90,7 +91,7 @@ d3.json("output.json", function(error, graph) {
     // link.attr("transform","scale(0.4)")  
 
     node.append("title")
-        .text(function(d) { return d.id + "(" + d.year + ")"; });
+        .text(function(d) { return d.id + "(" + d.attributes.year + ")"; });
 
     // simulation
     //     .nodes(graph.nodes)
@@ -138,66 +139,74 @@ function zoomed() {
  
 // 过滤年份
 function filterByYear() {
-    console.log(1)
-    year = document.getElementById("year").value
-    year = parseInt(year)
+    console.log(1);
+    year = document.getElementById("year").value;
+    year = parseInt(year);
     d3.selectAll("circle").filter(function(d, i) {
-        if ( d.year > year)
-            return true
+        if ( d.attributes.year > year)
+            return true;
         else 
-            return false
-    }).style("display", "none")
+            return false;
+    }).style("display", "none");
 
     d3.selectAll("circle").filter(function(d, i) {
-        if ( d.year <= year)
-            return true
+        if ( d.attributes.year <= year)
+            return true;
         else 
-            return false
-    }).style("display", "block")
+            return false;
+    }).style("display", "block");
 
     d3.selectAll("line").filter(function(d, i) {
         if ( d.year > year)
-            return true
+            return true;
         else 
-            return false
-    }).style("display", "none")
+            return false;
+    }).style("display", "none");
 
     d3.selectAll("line").filter(function(d, i) {
         if ( d.year <= year)
-            return true
+            return true;
         else 
-            return false
-    }).style("display", "block")
+            return false;
+    }).style("display", "block");
 }
 
 function startSpread() {
-    //TODO: 直接根据属性选择 
+    //TODO: 直接根据属性选择
     var seed = d3.selectAll("circle").filter(function(d) {
-        return d3.select(this).attr("fill") == "red"
+        return d3.select(this).attr("fill") == "red";
     })
     //不存在种子
     if (seed.empty()) {
-        console.log("spread finish")
-        return
+        console.log("spread finish");
+        return;
     }
     seed.each(function(d){
         // console.log(d.id)
+        //边变黄
+        // d3.selectAll("line").filter(function(l) {
+        //     if (this.css("storke") != "") {
+        //         console.log(this.css("storke"))
+        //     }
+        //     return d3.select(this).style("storke");
+        // }).style("storke", "orange")
         //随机选择相邻边
         var new_seed = d3.selectAll("line").filter(function(l) {
             // console.log(.source.id)
             // return false
-            return l.source.id == d.id && Math.random() < 0.5
-        })
+            return l.source.id == d.id && Math.random() < 0.3;
+        }).style("stroke-opacity", 0.6).style("stroke", "orange");
+        
         //生成新种子
         new_seed.each(function(l) {
             d3.selectAll("circle").filter(function(c) {
                 return (c.id == l.target.id && d3.select(this).attr("fill") == "steelblue")
             }).attr("fill", "red")
-        })
-        d3.select(this).attr("fill", "orange")
-    })
+        });
+        d3.select(this).attr("fill", "orange");
+    });
     //新一轮传播
-    setTimeout(startSpread, 1000)
+    setTimeout(startSpread, 1000);
 }
 
 </script>
