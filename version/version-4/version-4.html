@@ -39,7 +39,7 @@ circle.seed {
 
 circle.unobserved {
     fill: steelblue;
-    opacity: 0.3;
+    opacity: 0.2;
 }
 
 .invisible {
@@ -87,7 +87,6 @@ d3.json("01.json", function(error, graph) {
     console.log(graph.edges);
         
     var link = svg.append("g")
-        .attr("class", "links")
         .selectAll("line")
         .data(graph.edges)
         .enter().append("line")
@@ -96,10 +95,9 @@ d3.json("01.json", function(error, graph) {
         .attr("y1", function(d) { return center.y + d.source.y * 0.2; })
         .attr("x2", function(d) { return center.x + d.target.x * 0.2; })
         .attr("y2", function(d) { return center.y + d.target.y * 0.2; })
-        .classed("observed", true);
+        .attr("class", "observed");
 
     var node = svg.append("g")
-        .attr("class", "nodes")
         .selectAll("circle")
         .data(graph.nodes)
         .enter().append("circle")
@@ -206,15 +204,13 @@ function filterByYear() {
 
 async function simulation() {
     var year = parseInt(document.getElementById("year").value);
-    console.log(0);
+    console.log(year);
     while (year<2017) {
         await startSpread().then(() => {
             console.log("finish");
         });
-        d3.select("circle.infected").attr("class", "seed");
         d3.selectAll("circle.infected").attr("class", "observed");
         d3.selectAll("line.infected").attr("class", "observed");
-        d3.select("circle.observed").attr("class", "seed");
         //新一年的节点加入网络
         ++year;
         d3.selectAll("circle").filter(function(d, i) {
@@ -231,7 +227,6 @@ async function simulation() {
 function startSpread() {
     return new Promise((resolve) => {
         var seed = d3.selectAll("circle.seed")
-        console.log(seed)
         //不存在种子
         if (seed.empty()) {
             console.log("spread finish");
@@ -239,30 +234,37 @@ function startSpread() {
             return;
         }
         seed.each(function(d){
-            // console.log(d.id)
-            //边变黄
-            // d3.selectAll("line").filter(function(l) {
-            //     if (this.css("storke") != "") {
-            //         console.log(this.css("storke"))
-            //     }
-            //     return d3.select(this).style("storke");
-            // }).style("storke", "orange")
-            //随机选择相邻边
+            //随机选择种子的相邻边
             var new_seed = d3.selectAll("line").filter(function(l) {
                 if (l.source.id == d.id) {
-                    var target = d3.selectAll("circle").filter(function(c) {
-                        return c.id == l.target.id;
+                    var count = 0;
+                    d3.selectAll("circle.observed").filter(function(c) {
+                        if (c.id == l.target.id) ++count;
                     });
-                    return Math.random() < 0.3 && target.classed("observed");
+                    d3.selectAll("circle.unobserved").filter(function(c) {
+                        if (c.id == l.target.id) ++count;
+                    });
+                    //以一定概率抽取未感染的相邻节点（包括观测到的和未观测到的）
+                    return Math.random() < 0.15 && count == 1;
                 }
                 return false;
             }).attr("class", "infected");
             
-            //生成新种子
+            //生成新的种子
             new_seed.each(function(l) {
                 d3.selectAll("circle").filter(function(c) {
-                    return (c.id == l.target.id);
+                    return c.id == l.target.id;
                 }).attr("class", "seed");
+                //种子节点的相邻节点置为观测到的节点
+                d3.selectAll("line.unobserved").filter(function(ul) {
+                    if (ul.source.id == l.target.id) {
+                        d3.selectAll("circle.unobserved").filter(function(c){
+                            return c.id == ul.target.id; 
+                        }).attr("class", "observed");
+                        return true;
+                    };
+                    return false;
+                }).attr("class", "observed");
             });
             d3.select(this).attr("class", "infected");
         });
@@ -272,9 +274,9 @@ function startSpread() {
         }).then(() => {
             resolve();
         })
-        // setTimeout(startSpread, 1000);
     })
 }
+
 
 //延迟函数
 function sleep(ms) {
