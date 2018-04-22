@@ -4,9 +4,11 @@
 # 2018.4.20
 from flask import Flask
 from flask_jsonrpc import JSONRPC
+from flask_cors import CORS
 
 # Flask application
 app = Flask(__name__)
+CORS(app)
 
 # Flask-JSONRPC
 jsonrpc = JSONRPC(app, '/api/algorithm', enable_web_browsable_api=True)
@@ -28,5 +30,5 @@ def getSeeds(network, n):
     return seeds
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='127.0.0.1', debug=True)
     
