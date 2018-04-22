@@ -53,7 +53,9 @@ circle.unobserved {
 <button onclick="simulation()">开始传播</button>
 <br>
 <svg width="1200" height="750"></svg>
+<script src="http://upcdn.b0.upaiyun.com/libs/jquery/jquery-2.0.2.min.js"></script>
 <script src="d3.v4.min.js"></script>
+<script src="jquery.jsonrpc.js"></script>
 <script>
 
 var seed_node = []
@@ -211,6 +213,7 @@ async function simulation() {
         });
         d3.selectAll("circle.infected").attr("class", "observed");
         d3.selectAll("line.infected").attr("class", "observed");
+        getSeeds()
         //新一年的节点加入网络
         ++year;
         d3.selectAll("circle").filter(function(d, i) {
@@ -277,10 +280,45 @@ function startSpread() {
     })
 }
 
-
 //延迟函数
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+//设置rpc服务的地址
+$.jsonRPC.setup({
+  endPoint: 'http://127.0.0.1:5000/api/algorithm'
+});
+
+//通过算法选取种子
+function getSeeds() {
+    var network = {};
+    d3.selectAll("circle.observed").each(function(c) {
+        network[c.id] = []; 
+        d3.selectAll("line.observed").each(function(l) {
+            if (l.source.id == c.id) {
+                network[c.id].push(l.target.id);
+            }
+        })
+    })
+    $.jsonRPC.request('getSeeds', {
+        params: {
+            network: network,
+            n: 3
+        },
+        success: function(result) {
+            var seeds = result.result;
+            seeds.forEach(id => {
+                //对选取的种子进行标记
+                d3.selectAll("circle.observed").filter(function(c) {
+                    return id == c.id;
+                }).attr("class", "seed");
+            });
+        },
+        error: function(result) {
+            console.log(result);
+        }
+    });
 }
 
 </script>
