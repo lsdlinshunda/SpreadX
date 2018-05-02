@@ -208,11 +208,6 @@ async function simulation() {
     var year = parseInt(document.getElementById("year").value);
     console.log(year);
     while (year<2017) {
-        await startSpread().then(() => {
-            console.log("finish");
-        });
-        d3.selectAll("circle.infected").attr("class", "observed");
-        d3.selectAll("line.infected").attr("class", "observed");
         getSeeds()
         //新一年的节点加入网络
         ++year;
@@ -222,8 +217,14 @@ async function simulation() {
         d3.selectAll("line").filter(function(d, i) {
             return d.year == year;
         }).attr("class", "unobserved");
-        await sleep(1000);
+        await sleep(1000)
+        await startSpread().then(() => {
+            console.log("finish");
+        });
         console.log(year);
+        d3.selectAll("circle.infected").attr("class", "observed");
+        d3.selectAll("line.infected").attr("class", "observed");
+        await sleep(1000);
     }
 }
 
@@ -301,13 +302,16 @@ function getSeeds() {
             }
         })
     })
-    $.jsonRPC.request('getSeeds', {
+    $.jsonRPC.request('getSeeds_2', {
         params: {
             network: network,
-            n: 3
+            n: 3,
+            threshold: 2,
+            estimation: 0.4707106781186548
         },
         success: function(result) {
             var seeds = result.result;
+            console.log(seeds)
             seeds.forEach(id => {
                 //对选取的种子进行标记
                 d3.selectAll("circle.observed").filter(function(c) {
