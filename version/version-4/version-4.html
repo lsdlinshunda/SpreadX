@@ -1,5 +1,12 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
+<link rel="stylesheet" href="//apps.bdimg.com/libs/jqueryui/1.10.4/css/jquery-ui.min.css">
+<script src="//apps.bdimg.com/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="//apps.bdimg.com/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="jqueryui/style.css">
+<!-- <script src="http://upcdn.b0.upaiyun.com/libs/jquery/jquery-2.0.2.min.js"></script> -->
+<script src="d3.v4.min.js"></script>
+<script src="jquery.jsonrpc.js"></script>
 <style>
 
 line.observed {
@@ -46,17 +53,48 @@ circle.unobserved {
     display: none;
 }
 
+#year_selector label {
+    float: left;
+}
+
+#slider {
+    float: left;
+    width: 300px;
+    margin: 5px 16px 0 5px;
+}
+
+#year {
+    width: 30px;
+}
 </style>
-<span>年份：</span>
-<input id="year"></input>
-<button onclick="filterByYear()">筛选</button>
+<div id="year_selector">
+    <label for="year">年份：</label>
+    <div id="slider"></div>
+    <input id="year"></input>
+</div>
+<!-- <button onclick="filterByYear()">筛选</button> -->
 <button onclick="simulation()">开始传播</button>
 <br>
 <svg width="1200" height="750"></svg>
-<script src="http://upcdn.b0.upaiyun.com/libs/jquery/jquery-2.0.2.min.js"></script>
-<script src="d3.v4.min.js"></script>
-<script src="jquery.jsonrpc.js"></script>
 <script>
+
+// 年份滑动条
+$("#slider").slider({
+    value:2017,
+    min:2000,
+    max:2017,
+    step:1,
+    slide: function(event, ui) {
+        $("#year").val(ui.value);
+        filterByYear(ui.value);
+    }
+});
+$("#year").val($("#slider").slider("value"));
+// 为输入框绑定事件
+$("#year").bind("change", function() {
+    $("#slider").slider("value", this.value)
+    filterByYear(this.value)
+})
 
 var seed_node = []
 
@@ -173,8 +211,7 @@ function zoomed() {
 }
  
 // 过滤年份
-function filterByYear() {
-    var year = parseInt(document.getElementById("year").value);
+function filterByYear(year) {
     d3.selectAll("circle").filter(function(d, i) {
         if ( d.attributes.year > year)
             return true;
