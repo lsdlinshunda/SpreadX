@@ -248,6 +248,8 @@ async function simulation() {
         getSeeds()
         //新一年的节点加入网络
         ++year;
+        $("#year").val(year);
+        $("#slider").slider("value", year)
         d3.selectAll("circle").filter(function(d, i) {
             return d.attributes.year == year;
         }).attr("class", "unobserved");
