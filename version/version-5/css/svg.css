@@ -1,0 +1,43 @@
+line.observed {
+    stroke: steelblue;
+    stroke-opacity: 0.2;
+}
+
+line.infected {
+    stroke: orange;
+    stroke-opacity: 0.6; 
+}
+
+line.unobserved {
+    stroke: #999;
+    stroke-opacity: 0.05;
+}
+
+circle {
+    stroke: #fff;
+    stroke-width: 0.5 px;
+}
+
+circle.observed {
+    fill: steelblue;
+    opacity: 1.0;
+}
+
+circle.infected {
+    fill: orange;
+    opacity: 1.0;
+}
+
+circle.seed {
+    fill: red;
+    opacity: 1.0;
+}
+
+circle.unobserved {
+    fill: steelblue;
+    opacity: 0.2;
+}
+
+.invisible {
+    display: none;
+}

@@ -1,0 +1,14 @@
+#year_selector label {
+    float: left;
+    height: 20px;
+}
+
+#slider {
+    float: left;
+    width: 200px;
+    margin: 5px 16px 0 5px;
+}
+
+#year {
+    width: 30px;
+}
