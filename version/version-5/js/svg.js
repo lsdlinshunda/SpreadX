@@ -1,6 +1,6 @@
 var seed_node = []
 
-var zoom = d3.zoom().scaleExtent([1, 8]).on("zoom", zoomed);
+var zoom = d3.zoom().scaleExtent([0.5, 8]).on("zoom", zoomed);
 
 var svg = d3.select("svg").call(zoom),
     width = +svg.attr("width"),
