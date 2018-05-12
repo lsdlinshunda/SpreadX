@@ -1,14 +1,35 @@
+#menu {
+    margin-top: 30px;
+    width: 398px;
+    box-shadow: 2px 2px 2px 2px #888888;
+}
+
+#menu fieldset {
+    margin: 15px 15px 15px 15px;
+}
+
+#menu label {
+    line-height: 30px;
+    text-align: left;
+}
+
 #year_selector label {
-    float: left;
-    height: 20px;
+    width: 72px;
 }
 
 #slider {
-    float: left;
-    width: 200px;
-    margin: 5px 16px 0 5px;
+    margin: 8px 20px 0 0;
 }
 
-#year {
-    width: 30px;
+.input-small {
+    width: 60px;
+}
+
+.panel-title {
+    font-size: 20px;
+}
+
+legend {
+    font-size: 18px;
+    margin-bottom: 15px;
 }
