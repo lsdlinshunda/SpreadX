@@ -22,6 +22,8 @@ reader.onload = function(e) {
     try {
         var data = JSON.parse(e.target.result);
         initGraph(data);
+        $("#year").val(defaultOption.year.default);
+        $("#slider").slider("value", defaultOption.year.default);
     } catch(error) {
         alert("载入文件错误");
     }
