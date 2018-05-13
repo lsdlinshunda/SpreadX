@@ -11,10 +11,27 @@ $("#slider").slider({
 });
 
 $("#year").bind("change", function() {
-    $("#slider").slider("value", this.value)
-    filterByYear(this.value)
+    $("#slider").slider("value", this.value);
+    filterByYear(this.value);
 })
 
+// 读取数据文件
+var reader = new FileReader();
+
+reader.onload = function(e) {
+    try {
+        var data = JSON.parse(e.target.result);
+        initGraph(data);
+    } catch(error) {
+        alert("载入文件错误");
+    }
+}
+
+$("#inputfile").bind("change", function() {
+    reader.readAsText(this.files[0])
+})
+
+// 初始化设置
 resetOption()
 
 function resetOption() {

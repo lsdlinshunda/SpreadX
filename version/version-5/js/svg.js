@@ -13,12 +13,19 @@ function zoomed() {
 
 d3.json("../data/01.json", function(error, graph) {
     if (error) throw error;
+    initGraph(graph);
+});
+ 
+function initGraph(graph) {
+    $("svg").empty()
 
+    // 建立节点id到节点对象的映射
     var hash = []; 
     for (var i = 0; i < graph.nodes.length; ++i) {
         hash[graph.nodes[i].id] = graph.nodes[i];
     } 
 
+    // 将边的端点替换成相应的节点对象
     for (var i = 0; i < graph.edges.length; ++i) {
         graph.edges[i]["source"] = hash[graph.edges[i]["source"]];
         graph.edges[i]["target"] = hash[graph.edges[i]["target"]];
@@ -57,8 +64,8 @@ d3.json("../data/01.json", function(error, graph) {
 
     node.append("title")
         .text(function(d) { return d.id + "(" + d.attributes.year + ")"; });
-});
- 
+}
+
 // 过滤年份
 function filterByYear(year) {
     d3.selectAll("circle").filter(function(d, i) {
