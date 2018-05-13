@@ -98,6 +98,9 @@ function filterByYear(year) {
 }
 
 async function simulation() {
+    // 禁用设置面板
+    $("fieldset").attr("disabled", true);
+    $("#slider").slider("disable");
     // 获取参数
     var option = getOption();
     console.log(option)
@@ -114,14 +117,17 @@ async function simulation() {
         d3.selectAll("line").filter(function(d, i) {
             return d.year == year;
         }).attr("class", "unobserved");
-        await sleep(1000)
+        await sleep(750)
         await startSpread(option.probability).then(() => {
             console.log(year + " finish");
         });
         d3.selectAll("circle.infected").attr("class", "observed");
         d3.selectAll("line.infected").attr("class", "observed");
-        await sleep(1000);
+        await sleep(750);
     }
+    // 重新启用设置面板
+    $("fieldset").attr("disabled", false);
+    $("#slider").slider("enable");
 }
 
 function startSpread(probability) {
@@ -168,7 +174,7 @@ function startSpread(probability) {
             d3.select(this).attr("class", "infected");
         });
         //新一轮传播
-        sleep(1000).then(() => {
+        sleep(750).then(() => {
             return startSpread(probability);
         }).then(() => {
             resolve();
