@@ -44,17 +44,17 @@
                                 <div class="form-group">
                                     <label for="algorithm">种子选取算法：</label>
                                     <select id="algorithm" class="form-control">
-                                        <option>1.度数大小</option>
-                                        <option>2.影响力</option>
+                                        <option value="algorithm_1">1.度数大小</option>
+                                        <option value="algorithm_2">2.影响力</option>
                                     </select>
                                 </div>
                                 <div class="row-fluid">
                                     <div class="form-group input-group-sm">
                                         <label for="seed_number" class="col-sm-3">种子数：</label>
-                                        <input type="number" min="1" id="seed_number" class="form-control col-sm-2 input-small" value="3"></input>
+                                        <input type="number" min="1" id="seed_number" class="form-control col-sm-2 input-small"></input>
                                         <label for="probability" class="col-sm-3">感染率：</label>
                                         <div class="input-group col-sm-4 input-group-sm">
-                                            <input id="probability" class="form-control" value="30"></input>
+                                            <input type="number" min="0" max="100" id="probability" class="form-control"></input>
                                             <span class="input-group-addon">%</span>
                                         </div>
                                     </div>
@@ -62,10 +62,10 @@
                                 <div class="row-fluid">
                                     <div class="form-group input-group-sm">
                                         <label for="threshold" class="col-sm-3">边阈值：</label>
-                                        <input type="number" min="1" id="threshold" class="form-control col-sm-2 input-small" value="3"></input>
+                                        <input type="number" min="1" id="threshold" class="form-control col-sm-2 input-small"></input>
                                         <label for="estimation" class="col-sm-4">预估值上界：</label>
                                         <div class="input-group col-sm-3 input-group-sm">
-                                            <input id="estimation" class="form-control" value="0.4707106781186548"></input>
+                                            <input id="estimation" class="form-control"></input>
                                         </div>
                                     </div>  
                                 </div>
@@ -81,6 +81,7 @@
         </div>
     </body>
 
+    <script src="js/defaultOption.js"></script>
     <script src="js/menu.js"></script>
     <script src="js/svg.js"></script>
 </html>

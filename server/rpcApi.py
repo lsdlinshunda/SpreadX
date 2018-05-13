@@ -31,8 +31,8 @@ def index():
     return 'Welcome to Flask JSON-RPC'
 
 # 按度数大小选择种子
-@jsonrpc.method('getSeeds_1(network=dict, n=int) -> object')
-def getSeeds_1(network, n):
+@jsonrpc.method('algorithm_1(network=dict, n=int, threshold=int, estimation=float) -> object')
+def algorithm_1(network, n, threshold, estimation):
     degree = dict()
     for i in network:
         degree[i] = len(network[i])
@@ -43,8 +43,8 @@ def getSeeds_1(network, n):
         seeds.append(degree[i])
     return seeds
 
-@jsonrpc.method('getSeeds_2(network=dict, n=int, threshold=int, estimation=float) -> object')
-def getSeeds_2(network, n, threshold, estimation):
+@jsonrpc.method('algorithm_2(network=dict, n=int, threshold=int, estimation=float) -> object')
+def algorithm_2(network, n, threshold, estimation):
     seeds = []
     reverse_N = dict() # 反向的网络
     # 随机去除一些边

@@ -54,8 +54,6 @@ d3.json("../data/01.json", function(error, graph) {
                 chosen.attr("class", "seed");
             }
         });
-    
-    console.log($("g"))
 
     node.append("title")
         .text(function(d) { return d.id + "(" + d.attributes.year + ")"; });
@@ -93,10 +91,12 @@ function filterByYear(year) {
 }
 
 async function simulation() {
-    var year = parseInt(document.getElementById("year").value);
-    console.log(year);
+    // 获取参数
+    var option = getOption();
+    console.log(option)
+    var year = option.year;
     while (year<2017) {
-        getSeeds()
+        await getSeeds(option)
         //新一年的节点加入网络
         ++year;
         $("#year").val(year);
@@ -108,22 +108,20 @@ async function simulation() {
             return d.year == year;
         }).attr("class", "unobserved");
         await sleep(1000)
-        await startSpread().then(() => {
-            console.log("finish");
+        await startSpread(option.probability).then(() => {
+            console.log(year + " finish");
         });
-        console.log(year);
         d3.selectAll("circle.infected").attr("class", "observed");
         d3.selectAll("line.infected").attr("class", "observed");
         await sleep(1000);
     }
 }
 
-function startSpread() {
+function startSpread(probability) {
     return new Promise((resolve) => {
         var seed = d3.selectAll("circle.seed")
         //不存在种子
         if (seed.empty()) {
-            console.log("spread finish");
             resolve();
             return;
         }
@@ -139,7 +137,7 @@ function startSpread() {
                         if (c.id == l.target.id) ++count;
                     });
                     //以一定概率抽取未感染的相邻节点（包括观测到的和未观测到的）
-                    return Math.random() < 0.15 && count == 1;
+                    return Math.random() < probability && count == 1;
                 }
                 return false;
             }).attr("class", "infected");
@@ -164,7 +162,7 @@ function startSpread() {
         });
         //新一轮传播
         sleep(1000).then(() => {
-            return startSpread();
+            return startSpread(probability);
         }).then(() => {
             resolve();
         })
@@ -178,39 +176,43 @@ function sleep(ms) {
 
 //设置rpc服务的地址
 $.jsonRPC.setup({
-  endPoint: 'http://127.0.0.1:5000/api/algorithm'
+    endPoint: 'http://127.0.0.1:5000/api/algorithm'
 });
 
 //通过算法选取种子
-function getSeeds() {
-    var network = {};
-    d3.selectAll("circle.observed").each(function(c) {
-        network[c.id] = []; 
-        d3.selectAll("line.observed").each(function(l) {
-            if (l.source.id == c.id) {
-                network[c.id].push(l.target.id);
-            }
+function getSeeds(option) {
+    return new Promise((resolve) => {
+        var network = {};
+        d3.selectAll("circle.observed").each(function(c) {
+            network[c.id] = []; 
+            d3.selectAll("line.observed").each(function(l) {
+                if (l.source.id == c.id) {
+                    network[c.id].push(l.target.id);
+                }
+            })
         })
-    })
-    $.jsonRPC.request('getSeeds_2', {
-        params: {
-            network: network,
-            n: 3,
-            threshold: 2,
-            estimation: 0.4707106781186548
-        },
-        success: function(result) {
-            var seeds = result.result;
-            console.log(seeds)
-            seeds.forEach(id => {
-                //对选取的种子进行标记
-                d3.selectAll("circle.observed").filter(function(c) {
-                    return id == c.id;
-                }).attr("class", "seed");
-            });
-        },
-        error: function(result) {
-            console.log(result);
-        }
+        $.jsonRPC.request(option.algorithm , {
+            params: {
+                network: network,
+                n: option.seed_number,
+                threshold: option.threshold,
+                estimation: option.estimation,
+            },
+            success: function(result) {
+                var seeds = result.result;
+                console.log(seeds)
+                seeds.forEach(id => {
+                    //对选取的种子进行标记
+                    d3.selectAll("circle.observed").filter(function(c) {
+                        return id == c.id;
+                    }).attr("class", "seed");
+                });
+                resolve();
+            },
+            error: function(result) {
+                console.log(result);
+                resolve();
+            }
+        });
     });
 }
