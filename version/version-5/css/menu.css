@@ -1,5 +1,6 @@
 #menu {
     margin-top: 30px;
+    margin-left: 10px;
     width: 398px;
     box-shadow: 2px 2px 2px 2px #888888;
 }
@@ -32,4 +33,9 @@
 legend {
     font-size: 18px;
     margin-bottom: 15px;
+}
+
+#chart {
+    margin-top: 50px;
+    height: 800px;
 }

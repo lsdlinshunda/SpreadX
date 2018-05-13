@@ -33,6 +33,8 @@ $("#inputfile").bind("change", function() {
     reader.readAsText(this.files[0])
 })
 
+$("#menu").draggable()
+
 // 初始化设置
 resetOption()
 
