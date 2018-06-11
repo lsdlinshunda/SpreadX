@@ -56,9 +56,16 @@ var option = {
     ]
 };
 
+// 用于记录模拟中的数据
+var data = {
+    total: [],
+    observed: [],
+    infected: [],
+};
+
 myChart.setOption(option);
 
-function record(year, data) {
+function record(year) {
     var infected = $("circle.infected").length;
     var observed = $("circle.observed").length;
     var unobserved = $("circle.unobserved").length;

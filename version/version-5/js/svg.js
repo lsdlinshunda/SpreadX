@@ -105,11 +105,6 @@ async function simulation() {
     var option = getOption();
     console.log(option)
     // 记录模拟的结果
-    var data = {
-        total: [],
-        observed: [],
-        infected: [],
-    };
     var year = option.year;
     while (year<2017) {
         await getSeeds(option)
@@ -127,9 +122,10 @@ async function simulation() {
         await startSpread(option.probability).then(() => {
             console.log(year + " finish");
         });
-        record(year, data);
+        record(year);
         d3.selectAll("circle.infected").attr("class", "observed");
         d3.selectAll("line.infected").attr("class", "observed");
+        if (!option.auto) break;
         await sleep(750);
     }
     // 重新启用设置面板
