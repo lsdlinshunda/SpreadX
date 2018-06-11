@@ -43,6 +43,7 @@ def algorithm_1(network, n, threshold, estimation):
         seeds.append(degree[i])
     return seeds
 
+# 基于略图的影响力最大化算法
 @jsonrpc.method('algorithm_2(network=dict, n=int, threshold=int, estimation=float) -> object')
 def algorithm_2(network, n, threshold, estimation):
     seeds = []
@@ -93,6 +94,11 @@ def algorithm_2(network, n, threshold, estimation):
         for i in range(n - len(seeds)):
             seeds.append(sort[i])
     return seeds
-    
+
+# 手动选取种子模式，所以返回空数组
+@jsonrpc.method('manual(network=dict, n=int, threshold=int, estimation=float) -> object')
+def manual(network, n, threshold, estimation):
+    return []
+
 if __name__ == '__main__':
     app.run(host='127.0.0.1', debug=True)
